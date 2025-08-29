@@ -8,11 +8,11 @@
 		<version>3.5.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.heramientadesarrollo</groupId>
-	<artifactId>herramienta-desarrollo-backend</artifactId>
+	<groupId>com.lockersystem-backend</groupId>
+	<artifactId>lockersystem-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>herramienta-desarrollo-backend</name>
-	<description>Demo project for Spring Boot</description>
+	<name>lockersystem-backend</name>
+	<description>Proyecto de curso de Herramientas de desarrollo</description>
 	<url/>
 	<licenses>
 		<license/>
