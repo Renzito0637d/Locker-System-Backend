@@ -272,6 +272,7 @@ public class User implements UserDetails {
 
     public static User from(RegisterRequest r, String encodedPassword, RoleName role) {
         return User.builder()
+                .userName(r.getUserName())
                 .nombre(r.getNombre())
                 .apellido(r.getApellido())
                 .email(r.getEmail())
