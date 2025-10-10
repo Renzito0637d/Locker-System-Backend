@@ -1,6 +1,7 @@
 package com.lockersystem_backend.Service.Implements;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.lockersystem_backend.Config.JwtService;
 import com.lockersystem_backend.Entity.User;
@@ -10,6 +11,7 @@ import com.lockersystem_backend.Model.RegisterRequest;
 import com.lockersystem_backend.Repository.UserRepository;
 import com.lockersystem_backend.Service.Interfaces.UserService;
 
+@Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -23,10 +25,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public AuthResponse registerCliente(RegisterRequest request) {
+    public AuthResponse registerEstudiante(RegisterRequest request) {
         var encodedPassword = passwordEncoder.encode(request.getPassword());
 
-        var user = User.from(request, encodedPassword, RoleName.CLIENTE);
+        var user = User.from(request, encodedPassword, RoleName.ESTUDIANTE);
         // Guardar el nuevo usuario en la base de datos
         userRepository.save(user);
         // Generar un token JWT para el usuario registrado
