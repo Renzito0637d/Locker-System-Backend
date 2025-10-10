@@ -1,7 +1,15 @@
 package com.lockersystem_backend.Entity;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.lockersystem_backend.Entity.Enum.RoleName;
 
@@ -26,10 +34,14 @@ import jakarta.validation.constraints.NotBlank;
 @Table(name = "users", indexes = {
         @Index(name = "idx_user_email", columnList = "email", unique = true)
 })
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank
+    @Column(nullable = false, length = 120)
+    private String userName;
 
     @NotBlank
     @Column(nullable = false, length = 120)
@@ -53,11 +65,63 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Set<RoleName> roles = new HashSet<>();
 
+    @Column(nullable = false)
+    private Boolean active = true;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (roles == null || roles.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return roles.stream()
+                .filter(Objects::nonNull)
+                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
+                .collect(Collectors.toList());
+    }
+
+    // Este método devuelve el nombre de usuario del usuario.
+    @Override
+    public String getUsername() {
+        return this.userName;
+    }
+
+    // Este método devuelve la contraseña del usuario.
+    @Override
+    public String getPassword() {
+        return this.passwordHash;
+    }
+
+    // Los siguientes métodos devuelven valores predeterminados para las propiedades
+    // de seguridad del usuario.
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    // Este método indica si la cuenta del usuario está bloqueada o no.
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    // Este método indica si las credenciales del usuario han expirado o no.
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    // Este método indica si la cuenta del usuario está habilitada o no.
+    @Override
+    public boolean isEnabled() {
+        return Boolean.TRUE.equals(this.active);
+    }
+
     public User() {
     }
 
-    public User(Long id, String nombre, String apellido, String email, String passwordHash) {
+    public User(Long id, String userName, String nombre, String apellido, String email, String passwordHash) {
         this.id = id;
+        this.userName = userName;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -70,6 +134,14 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getNombre() {
@@ -110,6 +182,14 @@ public class User {
 
     public void setRoles(Set<RoleName> roles) {
         this.roles = roles;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
 }
