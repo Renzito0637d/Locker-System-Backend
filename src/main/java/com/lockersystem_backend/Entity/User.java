@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.lockersystem_backend.Entity.Enum.RoleName;
+import com.lockersystem_backend.Model.RegisterRequest;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -190,6 +191,94 @@ public class User implements UserDetails {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public static class Builder {
+        private Long id;
+        private String userName;
+        private String nombre;
+        private String apellido;
+        private String email;
+        private String passwordHash;
+        private Set<RoleName> roles = new HashSet<>();
+        private Boolean active = true;
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder userName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+
+        public Builder nombre(String nombre) {
+            this.nombre = nombre;
+            return this;
+        }
+
+        public Builder apellido(String apellido) {
+            this.apellido = apellido;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder passwordHash(String passwordHash) {
+            this.passwordHash = passwordHash;
+            return this;
+        }
+
+        public Builder roles(Set<RoleName> roles) {
+            this.roles = roles;
+            return this;
+        }
+
+        public Builder addRole(RoleName role) {
+            if (this.roles == null) {
+                this.roles = new HashSet<>();
+            }
+            this.roles.add(role);
+            return this;
+        }
+
+        public Builder active(Boolean active) {
+            this.active = active;
+            return this;
+        }
+
+        // Método final para construir el objeto User
+        public User build() {
+            User user = new User();
+            user.setId(this.id);
+            user.setUserName(this.userName);
+            user.setNombre(this.nombre);
+            user.setApellido(this.apellido);
+            user.setEmail(this.email);
+            user.setPasswordHash(this.passwordHash);
+            user.setActive(this.active);
+            user.setRoles(this.roles);
+            return user;
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static User from(RegisterRequest r, String encodedPassword, RoleName role) {
+        return User.builder()
+                .nombre(r.getNombre())
+                .apellido(r.getApellido())
+                .email(r.getEmail())
+                .passwordHash(encodedPassword)
+                .active(true)
+                .addRole(role)
+                .build();
     }
 
 }
