@@ -14,16 +14,25 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.lockersystem_backend.Config.CookieUtils;
 import com.lockersystem_backend.Config.JwtService;
 import com.lockersystem_backend.Model.AuthResponse;
 import com.lockersystem_backend.Model.AuthenticationRequest;
+import com.lockersystem_backend.Model.RegisterRequest;
+import com.lockersystem_backend.Service.Interfaces.UserService;
 
+@RestController
+@RequestMapping("/auth")
 public class AuthController {
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+
+    @Autowired
+    private UserService userService;
 
     // Configurables por entorno
     @Value("${app.cookies.secure:false}")
@@ -112,4 +121,10 @@ public class AuthController {
     private static String emptyToNull(String s) {
         return (s == null || s.isBlank()) ? null : s;
     }
+
+    @PostMapping("/registerEstudiante")
+    public ResponseEntity<AuthResponse> registerEstudiante(@RequestBody RegisterRequest request) {
+        return ResponseEntity.ok().body(userService.registerEstudiante(request));
+    }
+
 }
