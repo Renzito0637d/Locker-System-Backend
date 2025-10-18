@@ -36,5 +36,25 @@ public class UserServiceImpl implements UserService {
         // Devolver el token generado dentro de un objeto AuthResponse
         return AuthResponse.builder().token(jwtToken).build();
     }
+    // Métodos CRUD simples
+    @Override
+    public java.util.List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public java.util.Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+    userRepository.deleteById(id);
+}
 
 }
