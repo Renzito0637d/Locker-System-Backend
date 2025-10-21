@@ -35,7 +35,6 @@ public class UserController {
         }
         User user = userOptional.get();
     user.setUserName(userDetails.getUserName());
-    user.setPasswordHash(userDetails.getPasswordHash());
     user.setEmail(userDetails.getEmail());
     user.setRoles(userDetails.getRoles());
     // Agrega aquí otros campos que quieras actualizar
