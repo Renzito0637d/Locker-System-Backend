@@ -2,9 +2,9 @@ package com.lockersystem_backend.Service.Implements;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.lockersystem_backend.Entity.Ubicacion;
 import com.lockersystem_backend.Repository.UbicacionRepository;
@@ -27,31 +27,45 @@ public class UbicacionServiceImpl implements UbicacionService {
     }
 
     @Override
+    @Transactional
     public Ubicacion registrarUbicacion(Ubicacion ubicacion) {
+        boolean existe = ubicacionRepository.existsByNombreEdificioAndPisoAndPabellon(
+            ubicacion.getNombreEdificio(),
+            ubicacion.getPiso(),
+            ubicacion.getPabellon()
+        );
+
+        if (existe) {
+            throw new IllegalArgumentException("Ya existe una ubicación con esos datos");
+        }
+
         return ubicacionRepository.save(ubicacion);
     }
 
     @Override
+    @Transactional
     public Ubicacion actualizarUbicacion(Long id, Ubicacion ubicacion) {
         Optional<Ubicacion> ubicacionExistente = ubicacionRepository.findById(id);
-        if (ubicacionExistente.isPresent()) {
-            Ubicacion u = ubicacionExistente.get();
-            u.setNombreEdificio(ubicacion.getNombreEdificio());
-            u.setPiso(ubicacion.getPiso());
-            u.setPabellon(ubicacion.getPabellon());
-            u.setDescripcion(ubicacion.getDescripcion());
-            return ubicacionRepository.save(u);
-        } else {
-            throw new RuntimeException("Ubicación con ID " + id + " no encontrada");
+
+        if (ubicacionExistente.isEmpty()) {
+            throw new IllegalArgumentException("Ubicación con ID " + id + " no encontrada");
         }
+
+        Ubicacion u = ubicacionExistente.get();
+        u.setNombreEdificio(ubicacion.getNombreEdificio());
+        u.setPiso(ubicacion.getPiso());
+        u.setPabellon(ubicacion.getPabellon());
+        u.setDescripcion(ubicacion.getDescripcion());
+
+        return ubicacionRepository.save(u);
     }
 
     @Override
+    @Transactional
     public void eliminarUbicacion(Long id) {
-        if (ubicacionRepository.existsById(id)) {
-            ubicacionRepository.deleteById(id);
-        } else {
-            throw new RuntimeException("No se puede eliminar. Ubicación con ID " + id + " no encontrada");
+        if (!ubicacionRepository.existsById(id)) {
+            throw new IllegalArgumentException("Ubicación con ID " + id + " no encontrada");
         }
+        ubicacionRepository.deleteById(id);
     }
 }
