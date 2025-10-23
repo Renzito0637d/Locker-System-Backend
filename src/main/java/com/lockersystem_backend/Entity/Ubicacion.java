@@ -2,6 +2,8 @@ package com.lockersystem_backend.Entity;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,6 +37,7 @@ public class Ubicacion {
 
     // Relación: Una ubicación puede tener muchos lockers
     @OneToMany(mappedBy = "ubicacion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<Locker> lockers;
 
     public Ubicacion() {
