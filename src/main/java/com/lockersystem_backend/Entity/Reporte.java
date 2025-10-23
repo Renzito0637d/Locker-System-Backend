@@ -2,6 +2,9 @@ package com.lockersystem_backend.Entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "reportes")
 public class Reporte {
@@ -33,11 +37,14 @@ public class Reporte {
     // Relación: Muchos reportes son creados por un usuario
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
+    @JsonBackReference 
     private User user;
+    
 
     // Relación: Muchos reportes se refieren a un locker
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_locker", nullable = false)
+    @JsonBackReference
     private Locker locker;
 
     public Reporte() {

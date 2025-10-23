@@ -42,7 +42,7 @@ public class ReporteServiceImpl implements ReporteService {
     public Reporte create(CreateReporteRequest dto) {
         Reporte r = new Reporte();
         r.setDescripcion(dto.getDescripcion());
-        r.setFechaReporte(dto.getFechaReporte());
+        r.setFechaReporte(java.time.LocalDateTime.now());
         r.setTipoReporte(dto.getTipoReporte());
 
         if (dto.getUserId() != null) {
