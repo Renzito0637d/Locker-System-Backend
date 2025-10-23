@@ -27,7 +27,7 @@
 		<url/>
 	</scm>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>24</java.version>
 	</properties>
 	<dependencies>
 	
@@ -52,6 +52,10 @@
     		<artifactId>sqlite-jdbc</artifactId>
     		<version>3.45.3.0</version> 
 		</dependency>
+		<dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-community-dialects</artifactId>
+    </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
