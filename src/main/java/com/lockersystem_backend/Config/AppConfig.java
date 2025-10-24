@@ -65,7 +65,8 @@ public class AppConfig implements WebMvcConfigurer {
 
         // Para desarrollo (react en localhost)
         config.setAllowedOriginPatterns(List.of(
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "https://locker-system-frontend.onrender.com"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
