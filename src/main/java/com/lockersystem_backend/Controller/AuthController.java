@@ -38,13 +38,13 @@ public class AuthController {
     private UserService userService;
 
     // Configurables por entorno
-    @Value("${app.cookies.secure:false}")
+    @Value("${app.cookies.secure:true}")
     private boolean cookieSecure;
 
     @Value("${app.cookies.domain:}")
     private String cookieDomain;
 
-    @Value("${app.cookies.samesite:Lax}")
+    @Value("${app.cookies.samesite:None}")
     private String cookieSameSite;
 
     @Value("${security.jwt.access-exp-seconds:900}")
