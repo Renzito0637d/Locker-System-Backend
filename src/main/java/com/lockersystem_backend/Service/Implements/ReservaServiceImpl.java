@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.lockersystem_backend.Entity.Reserva;
 import com.lockersystem_backend.Entity.Locker;
 import com.lockersystem_backend.Entity.User;
-import com.lockersystem_backend.Model.ReservaRequest;
+import com.lockersystem_backend.Model.ReservaDTOs.ReservaRequest;
 import com.lockersystem_backend.Repository.ReservaRepository;
 import com.lockersystem_backend.Repository.LockerRepository;
 import com.lockersystem_backend.Repository.UserRepository;

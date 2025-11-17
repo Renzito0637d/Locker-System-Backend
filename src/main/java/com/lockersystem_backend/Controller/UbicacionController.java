@@ -7,13 +7,12 @@ import org.springframework.web.bind.annotation.*;
 
 import com.lockersystem_backend.Entity.Ubicacion;
 import com.lockersystem_backend.Service.Interfaces.UbicacionService;
-import com.lockersystem_backend.Model.UbicacionRequest;
+import com.lockersystem_backend.Model.UbicacionDTOs.UbicacionRequest;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/ubicaciones")
-@CrossOrigin(origins = "*")
+@RequestMapping("/ubicaciones")
 public class UbicacionController {
 
     @Autowired
