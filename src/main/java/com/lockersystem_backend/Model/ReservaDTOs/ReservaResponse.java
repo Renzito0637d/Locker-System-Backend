@@ -1,6 +1,8 @@
-package com.lockersystem_backend.Model;
+package com.lockersystem_backend.Model.ReservaDTOs;
 
 import java.time.LocalDateTime;
+
+import com.lockersystem_backend.Entity.Reserva;
 
 public class ReservaResponse {
 
@@ -14,13 +16,13 @@ public class ReservaResponse {
     public ReservaResponse() {
     }
 
-    public ReservaResponse(Long id, LocalDateTime fechaInicio, LocalDateTime fechaFin, String estadoReserva, Long userId, Long lockerId) {
-        this.id = id;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.estadoReserva = estadoReserva;
-        this.userId = userId;
-        this.lockerId = lockerId;
+    public ReservaResponse(Reserva reserva) {
+        this.id = reserva.getId();
+        this.fechaInicio = reserva.getFechaInicio();
+        this.fechaFin = reserva.getFechaFin();
+        this.estadoReserva = reserva.getEstadoReserva();
+        this.userId = reserva.getUser().getId();
+        this.lockerId = reserva.getLocker().getId();
     }
 
     public Long getId() {
