@@ -1,4 +1,4 @@
-package com.lockersystem_backend.Model;
+package com.lockersystem_backend.Model.ReservaDTOs;
 
 import java.time.LocalDateTime; // <- IMPORT NECESARIO
 

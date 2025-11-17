@@ -9,8 +9,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.lockersystem_backend.Entity.Locker;
 import com.lockersystem_backend.Entity.Ubicacion;
-import com.lockersystem_backend.Model.CreateLockerRequest;
-import com.lockersystem_backend.Model.UpdateLockerRequest;
+import com.lockersystem_backend.Model.LockerDTOs.CreateLockerRequest;
+import com.lockersystem_backend.Model.LockerDTOs.UpdateLockerRequest;
 import com.lockersystem_backend.Repository.LockerRepository;
 import com.lockersystem_backend.Repository.UbicacionRepository;
 import com.lockersystem_backend.Service.Interfaces.LockerService;

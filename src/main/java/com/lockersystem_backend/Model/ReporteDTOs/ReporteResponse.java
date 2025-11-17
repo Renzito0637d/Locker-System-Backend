@@ -1,4 +1,4 @@
-package com.lockersystem_backend.Model;
+package com.lockersystem_backend.Model.ReporteDTOs;
 
 import java.time.LocalDateTime;
 

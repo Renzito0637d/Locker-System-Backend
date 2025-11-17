@@ -50,6 +50,26 @@ public class UserServiceImpl implements UserService {
         return AuthResponse.builder().token(jwtToken).build();
     }
 
+    @Override
+    public AuthResponse registerAdmin(RegisterRequest request) {
+        if (request.getEmail() == null || request.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("El correo no puede estar vacío");
+        }
+        if (request.getPassword() == null || request.getPassword().length() < 6) {
+            throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese correo");
+        }
+
+        var encodedPassword = passwordEncoder.encode(request.getPassword());
+        var user = User.from(request, encodedPassword, RoleName.ADMIN);
+        userRepository.save(user);
+
+        var jwtToken = jwtService.generateAccessToken(user);
+        return AuthResponse.builder().token(jwtToken).build();
+    }
+
     // ---------------- CRUD CON VALIDACIONES ----------------
 
     @Override
@@ -97,5 +117,10 @@ public class UserServiceImpl implements UserService {
             throw new EntityNotFoundException("No se puede eliminar. El usuario no existe con ID: " + id);
         }
         userRepository.deleteById(id);
+    }
+    
+    @Override
+    public Optional<User> buscarUserPorCorreo(String email) {
+        return userRepository.findUserByUserName(email);
     }
 }

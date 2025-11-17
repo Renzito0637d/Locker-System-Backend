@@ -1,4 +1,4 @@
-package com.lockersystem_backend.Model;
+package com.lockersystem_backend.Model.LockerDTOs;
 
 public class UpdateLockerRequest {
     private String numeroLocker;

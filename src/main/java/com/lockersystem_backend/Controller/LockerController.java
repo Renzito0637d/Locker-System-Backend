@@ -8,12 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.lockersystem_backend.Entity.Locker;
-import com.lockersystem_backend.Model.CreateLockerRequest;
-import com.lockersystem_backend.Model.UpdateLockerRequest;
+import com.lockersystem_backend.Model.LockerDTOs.CreateLockerRequest;
+import com.lockersystem_backend.Model.LockerDTOs.UpdateLockerRequest;
 import com.lockersystem_backend.Service.Interfaces.LockerService;
 
 @RestController
-@RequestMapping("/api/lockers")
+@RequestMapping("/lockers")
 public class LockerController {
 
     @Autowired
