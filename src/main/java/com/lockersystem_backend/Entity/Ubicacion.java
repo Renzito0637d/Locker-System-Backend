@@ -3,7 +3,7 @@ package com.lockersystem_backend.Entity;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,6 +17,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "ubicacion")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Ubicacion {
 
     @Id
@@ -38,7 +39,6 @@ public class Ubicacion {
 
     // Relación: Una ubicación puede tener muchos lockers
     @OneToMany(mappedBy = "ubicacion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
     @JsonIgnore
     private Set<Locker> lockers;
 
