@@ -19,9 +19,9 @@ jobs:
           distribution: "temurin"
           cache: maven
       - name: Run tests with Maven
-        run: cd app && mvn test
+        run: mvn test
       - name: Build with Maven
-        run: cd app && mvn clean install -DskipTests
+        run: mvn clean install -DskipTests
 
   deploy:
     needs: test
