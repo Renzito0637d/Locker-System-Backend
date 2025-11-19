@@ -17,6 +17,7 @@ public class UbicacionController {
 
     @Autowired
     private UbicacionService ubicacionService;
+    
 
     @GetMapping
     public ResponseEntity<List<Ubicacion>> listarUbicaciones() {
