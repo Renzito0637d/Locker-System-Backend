@@ -37,7 +37,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/**",
                                 "/docs/**",
-                                "/actuator/health")
+                                "/actuator/health",
+                                "/lockers/**")
                         .permitAll()
 
                         // Por roles (asegúrate que los GrantedAuthority tengan prefijo "ROLE_")
