@@ -84,7 +84,7 @@ public class AuthController {
                 .body(new AuthResponse("ok"));
     }
 
-    public record MeResponse(Long id, String userName, String apellido, List<String> roles) {
+    public record MeResponse(Long id, String userName, String apellido, String email, List<String> roles) {
     }
 
     @GetMapping("/me")
@@ -98,11 +98,13 @@ public class AuthController {
         Long id = tryInvoke(principal, "getId", Long.class); // si tu User tiene getId()
         String apellido = tryInvoke(principal, "getApellido", String.class); // si tu User tiene getNickname()
 
+        String email = tryInvoke(principal, "getEmail", String.class);
+
         List<String> roles = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority) // p.ej. "ROLE_ADMIN"
                 .toList();
 
-        return new MeResponse(id, userName, apellido, roles);
+        return new MeResponse(id, userName, apellido, email, roles);
     }
 
     @SuppressWarnings("unchecked")
