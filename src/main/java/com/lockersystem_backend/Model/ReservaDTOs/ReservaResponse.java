@@ -10,66 +10,101 @@ public class ReservaResponse {
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
     private String estadoReserva;
-    private Long userId;
-    private Long lockerId;
 
-    public ReservaResponse() {
-    }
+    // En lugar de IDs sueltos, usamos objetos anidados
+    private UserDto user;
+    private LockerDto locker;
 
     public ReservaResponse(Reserva reserva) {
         this.id = reserva.getId();
         this.fechaInicio = reserva.getFechaInicio();
         this.fechaFin = reserva.getFechaFin();
-        this.estadoReserva = reserva.getEstadoReserva();
-        this.userId = reserva.getUser().getId();
-        this.lockerId = reserva.getLocker().getId();
+        // Convertimos el Enum a String para el JSON
+        this.estadoReserva = reserva.getEstadoReserva() != null ? reserva.getEstadoReserva().toString() : null;
+
+        // Mapeamos manualmente para asegurar que los datos viajen
+        if (reserva.getUser() != null) {
+            this.user = new UserDto(
+                    reserva.getUser().getId(),
+                    reserva.getUser().getUserName(),
+                    reserva.getUser().getEmail());
+        }
+
+        if (reserva.getLocker() != null) {
+            // Aquí es importante acceder a ubicacion también
+            String pabellon = (reserva.getLocker().getUbicacion() != null)
+                    ? reserva.getLocker().getUbicacion().getPabellon()
+                    : "?";
+
+            String piso = (reserva.getLocker().getUbicacion() != null)
+                    ? reserva.getLocker().getUbicacion().getPiso()
+                    : "?";
+
+            this.locker = new LockerDto(
+                    reserva.getLocker().getId(),
+                    reserva.getLocker().getNumeroLocker(),
+                    pabellon,
+                    piso);
+        }
     }
 
+    // --- MINI CLASES STATICAS (DTOs internos) ---
+    public static class UserDto {
+        public Long id;
+        public String userName;
+        public String email;
+
+        public UserDto(Long id, String userName, String email) {
+            this.id = id;
+            this.userName = userName;
+            this.email = email;
+        }
+    }
+
+    public static class LockerDto {
+        public Long id;
+        public String numeroLocker;
+        public UbicacionDto ubicacion; // Anidamos un nivel más para respetar tu frontend
+
+        public LockerDto(Long id, String numero, String pabellon, String piso) {
+            this.id = id;
+            this.numeroLocker = numero;
+            this.ubicacion = new UbicacionDto(pabellon, piso);
+        }
+    }
+
+    public static class UbicacionDto {
+        public String pabellon;
+        public String piso;
+
+        public UbicacionDto(String pabellon, String piso) {
+            this.pabellon = pabellon;
+            this.piso = piso;
+        }
+    }
+
+    // --- GETTERS ---
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public LocalDateTime getFechaInicio() {
         return fechaInicio;
     }
 
-    public void setFechaInicio(LocalDateTime fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
     public LocalDateTime getFechaFin() {
         return fechaFin;
-    }
-
-    public void setFechaFin(LocalDateTime fechaFin) {
-        this.fechaFin = fechaFin;
     }
 
     public String getEstadoReserva() {
         return estadoReserva;
     }
 
-    public void setEstadoReserva(String estadoReserva) {
-        this.estadoReserva = estadoReserva;
+    public UserDto getUser() {
+        return user;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Long getLockerId() {
-        return lockerId;
-    }
-
-    public void setLockerId(Long lockerId) {
-        this.lockerId = lockerId;
+    public LockerDto getLocker() {
+        return locker;
     }
 }
