@@ -56,22 +56,38 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public Reserva actualizarReserva(Long id, ReservaRequest request) {
-        Reserva reservaExistente = reservaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+    // 1. Buscamos la reserva existente por su ID
+    Reserva reservaExistente = reservaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
+    // 2. Actualizamos SOLO los datos que pueden cambiar
+    reservaExistente.setFechaInicio(request.getFechaInicio());
+    reservaExistente.setFechaFin(request.getFechaFin());
+    
+    // Si envías el estado como Enum o String, asígnalo:
+    if (request.getEstadoReserva() != null) {
+        // Si usas Enum:
+        // reservaExistente.setEstadoReserva(request.getEstadoReserva());
+        // Si usas String:
+        reservaExistente.setEstadoReserva(request.getEstadoReserva()); 
+    }
+
+    // 3. IMPORTANTE: NO actualizamos User ni Locker si vienen nulos
+    // Esto evita el error "The given id must not be null"
+    if (request.getUserId() != null) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        reservaExistente.setUser(user);
+    }
+
+    if (request.getLockerId() != null) {
         Locker locker = lockerRepository.findById(request.getLockerId())
                 .orElseThrow(() -> new RuntimeException("Locker no encontrado"));
-
-        reservaExistente.setUser(user);
         reservaExistente.setLocker(locker);
-        reservaExistente.setFechaInicio(request.getFechaInicio());
-        reservaExistente.setFechaFin(request.getFechaFin());
-        reservaExistente.setEstadoReserva(request.getEstadoReserva());
-
-        return reservaRepository.save(reservaExistente);
     }
+
+    return reservaRepository.save(reservaExistente);
+}
 
     @Override
     public void eliminarReserva(Long id) {
