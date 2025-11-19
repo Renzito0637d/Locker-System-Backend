@@ -25,6 +25,21 @@ public class LockerServiceImpl implements LockerService {
         this.lockerRepository = lockerRepository;
         this.ubicacionRepository = ubicacionRepository;
     }
+    private void validarEstado(String estado) {
+
+    if (estado == null) return; // para actualizaciones parciales
+
+    if (!estado.equalsIgnoreCase("disponible") &&
+        !estado.equalsIgnoreCase("ocupado") &&
+        !estado.equalsIgnoreCase("en mantenimiento")) {
+
+        throw new ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            "Estado inválido. Solo se permite: disponible, ocupado o en mantenimiento"
+        );
+    }
+}
+
 
     @Override
     public List<Locker> findAll() {
@@ -50,6 +65,7 @@ public class LockerServiceImpl implements LockerService {
 
         Locker l = new Locker();
         l.setNumeroLocker(dto.getNumeroLocker());
+        validarEstado(dto.getEstado());
         l.setEstado(dto.getEstado());
 
         // 🔹 Validar que exista la ubicación
@@ -73,6 +89,7 @@ public class LockerServiceImpl implements LockerService {
             l.setNumeroLocker(dto.getNumeroLocker());
         }
         if (dto.getEstado() != null) {
+            validarEstado(dto.getEstado());
             l.setEstado(dto.getEstado());
         }
         if (dto.getUbicacionId() != null) {
