@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.lockersystem_backend.Entity.Locker;
 import com.lockersystem_backend.Entity.Ubicacion;
 import com.lockersystem_backend.Model.LockerDTOs.CreateLockerRequest;
+import com.lockersystem_backend.Model.LockerDTOs.LockerResponse;
 import com.lockersystem_backend.Model.LockerDTOs.UpdateLockerRequest;
 import com.lockersystem_backend.Repository.LockerRepository;
 import com.lockersystem_backend.Repository.UbicacionRepository;
@@ -42,9 +43,12 @@ public class LockerServiceImpl implements LockerService {
 
 
     @Override
-    public List<Locker> findAll() {
-        return lockerRepository.findAll();
-    }
+ public List<LockerResponse> findAll() {
+    return lockerRepository.findAll()
+            .stream()
+            .map(LockerResponse::fromEntity)
+            .toList();
+}
 
     @Override
     public Optional<Locker> findById(Long id) {

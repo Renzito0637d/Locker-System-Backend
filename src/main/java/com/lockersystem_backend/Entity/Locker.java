@@ -2,7 +2,7 @@ package com.lockersystem_backend.Entity;
 
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -35,11 +35,11 @@ public class Locker {
     // Relación: Muchos lockers pertenecen a una ubicación
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ubicacion", nullable = false)
-    @JsonBackReference
     private Ubicacion ubicacion;
 
     // Relación: Un locker puede tener muchas reservas
     @OneToMany(mappedBy = "locker", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Reserva> reservas;
 
     // Relación: Un locker puede tener muchos reportes

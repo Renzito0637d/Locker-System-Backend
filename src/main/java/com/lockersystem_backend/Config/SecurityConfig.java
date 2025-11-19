@@ -38,7 +38,8 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/docs/**",
                                 "/actuator/health",
-                                "/lockers/**")
+                                "/lockers/**",
+                                "/ubicaciones**")
                         .permitAll()
 
                         // Por roles (asegúrate que los GrantedAuthority tengan prefijo "ROLE_")
