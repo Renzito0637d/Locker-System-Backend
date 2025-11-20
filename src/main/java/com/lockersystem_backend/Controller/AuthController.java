@@ -1,5 +1,6 @@
 package com.lockersystem_backend.Controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,6 +82,38 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header("Set-Cookie", cookie.toString())
                 .body(new AuthResponse("ok"));
+    }
+
+    public record MeResponse(Long id, String userName, String apellido, String email, List<String> roles) {
+    }
+
+    @GetMapping("/me")
+    public MeResponse me(Authentication auth) {
+        Object principal = auth.getPrincipal();
+
+        String userName = (principal instanceof UserDetails ud)
+                ? ud.getUsername()
+                : principal.toString();
+
+        Long id = tryInvoke(principal, "getId", Long.class); // si tu User tiene getId()
+        String apellido = tryInvoke(principal, "getApellido", String.class); // si tu User tiene getNickname()
+
+        String email = tryInvoke(principal, "getEmail", String.class);
+
+        List<String> roles = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority) // p.ej. "ROLE_ADMIN"
+                .toList();
+
+        return new MeResponse(id, userName, apellido, email, roles);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T tryInvoke(Object obj, String method, Class<T> type) {
+        try {
+            return (T) obj.getClass().getMethod(method).invoke(obj);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // Refresca el token leyendo la cookie ACCESS_TOKEN y reemitiendo otra

@@ -6,4 +6,5 @@ import com.lockersystem_backend.Entity.Locker;
 
 @Repository
 public interface LockerRepository extends JpaRepository<Locker, Long> {
+     boolean existsByNumeroLocker(String numeroLocker);
 }

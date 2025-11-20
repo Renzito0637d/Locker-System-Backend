@@ -43,7 +43,7 @@ public class User implements UserDetails {
     private Long id;
 
     @NotBlank
-    @Column(nullable = false, length = 120)
+    @Column(nullable = false, length = 120, unique = true)
     private String userName;
 
     @NotBlank

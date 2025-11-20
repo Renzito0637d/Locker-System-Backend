@@ -11,5 +11,7 @@ import com.lockersystem_backend.Entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
     // Devuelve un Optional<User> para manejar el caso en el que no se encuentre un
     // usuario con ese usuario.
+      boolean existsByEmail(String email);
     Optional<User> findUserByUserName(String userName);
+    
 }
