@@ -9,16 +9,19 @@ public class ReporteResponse {
     private LocalDateTime fechaReporte;
     private String userName;
     private String numeroLocker;
+    private String estado;
 
     public ReporteResponse() {}
 
-    public ReporteResponse(Long id, String descripcion, String tipoReporte, LocalDateTime fechaReporte, String userName, String numeroLocker) {
+    public ReporteResponse(Long id, String descripcion, String tipoReporte, LocalDateTime fechaReporte,
+                           String userName, String numeroLocker, String estado) {
         this.id = id;
         this.descripcion = descripcion;
         this.tipoReporte = tipoReporte;
         this.fechaReporte = fechaReporte;
         this.userName = userName;
         this.numeroLocker = numeroLocker;
+        this.estado = estado;
     }
 
     public Long getId() { return id; }
@@ -38,4 +41,7 @@ public class ReporteResponse {
 
     public String getNumeroLocker() { return numeroLocker; }
     public void setNumeroLocker(String numeroLocker) { this.numeroLocker = numeroLocker; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 }
