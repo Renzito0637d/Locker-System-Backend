@@ -1,34 +1,24 @@
-package com.lockersystem_backend.Model;
+package com.lockersystem_backend.Model.ReservaDTOs;
 
-import java.time.LocalDateTime;
+import java.time.LocalDateTime; // <- IMPORT NECESARIO
 
-public class ReservaResponse {
+public class ReservaRequest {
 
-    private Long id;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
     private String estadoReserva;
     private Long userId;
     private Long lockerId;
 
-    public ReservaResponse() {
+    public ReservaRequest() {
     }
 
-    public ReservaResponse(Long id, LocalDateTime fechaInicio, LocalDateTime fechaFin, String estadoReserva, Long userId, Long lockerId) {
-        this.id = id;
+    public ReservaRequest(LocalDateTime fechaInicio, LocalDateTime fechaFin, String estadoReserva, Long userId, Long lockerId) {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.estadoReserva = estadoReserva;
         this.userId = userId;
         this.lockerId = lockerId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public LocalDateTime getFechaInicio() {

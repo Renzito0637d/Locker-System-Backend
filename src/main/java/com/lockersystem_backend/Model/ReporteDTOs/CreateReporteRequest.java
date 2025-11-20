@@ -1,21 +1,15 @@
-package com.lockersystem_backend.Model;
+package com.lockersystem_backend.Model.ReporteDTOs;
 
-import java.time.LocalDateTime;
-
-public class UpdateReporteRequest {
+public class CreateReporteRequest {
     private String descripcion;
-    private LocalDateTime fechaReporte;
     private String tipoReporte;
     private Long userId;
     private Long lockerId;
 
-    public UpdateReporteRequest() {}
+    public CreateReporteRequest() {}
 
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-
-    public LocalDateTime getFechaReporte() { return fechaReporte; }
-    public void setFechaReporte(LocalDateTime fechaReporte) { this.fechaReporte = fechaReporte; }
 
     public String getTipoReporte() { return tipoReporte; }
     public void setTipoReporte(String tipoReporte) { this.tipoReporte = tipoReporte; }

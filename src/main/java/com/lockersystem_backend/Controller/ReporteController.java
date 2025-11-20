@@ -8,13 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.lockersystem_backend.Entity.Reporte;
-import com.lockersystem_backend.Model.CreateReporteRequest;
-import com.lockersystem_backend.Model.UpdateReporteRequest;
-import com.lockersystem_backend.Model.ReporteResponse;
+import com.lockersystem_backend.Model.ReporteDTOs.CreateReporteRequest;
+import com.lockersystem_backend.Model.ReporteDTOs.ReporteResponse;
+import com.lockersystem_backend.Model.ReporteDTOs.UpdateReporteRequest;
 import com.lockersystem_backend.Service.Implements.ReporteServiceImpl;
 
 @RestController
-@RequestMapping("/api/reportes")
+@RequestMapping("/reportes")
 public class ReporteController {
 
     @Autowired

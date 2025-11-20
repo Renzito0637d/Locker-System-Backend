@@ -60,31 +60,36 @@ public class AuthController {
         this.userDetailsService = userDetailsService;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthenticationRequest req) {
-        Authentication auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getUserName(), req.getPassword()));
+   @PostMapping("/login")
+public ResponseEntity<AuthResponse> login(@RequestBody AuthenticationRequest req) {
+    // 1. Autenticación normal
+    Authentication auth = authManager.authenticate(
+            new UsernamePasswordAuthenticationToken(req.getUserName(), req.getPassword()));
 
-        UserDetails user = (UserDetails) auth.getPrincipal();
-        String jwt = jwtService.generateAccessToken(user);
+    UserDetails user = (UserDetails) auth.getPrincipal();
+    
+    // 2. Generar JWT
+    String jwt = jwtService.generateAccessToken(user);
 
-        boolean isCliente = user.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_CLIENTE".equals(a.getAuthority()));
+    boolean isCliente = user.getAuthorities().stream()
+            .anyMatch(a -> "ROLE_CLIENTE".equals(a.getAuthority()));
 
-        // CLIENTE => cookie persistente (maxAge). Otros roles => cookie de sesión (sin
-        // maxAge).
-        ResponseCookie cookie = isCliente
-                ? CookieUtils.accessCookie(jwt, cookieSecure, emptyToNull(cookieDomain), cookieSameSite,
-                        accessExp)
-                : CookieUtils.accessCookie(jwt, cookieSecure, emptyToNull(cookieDomain), cookieSameSite,
-                        0);
+    // 3. Crear cookie EXACTO como ya usabas
+    ResponseCookie cookie = isCliente
+            ? CookieUtils.accessCookie(jwt, cookieSecure, emptyToNull(cookieDomain), cookieSameSite, accessExp)
+            : CookieUtils.accessCookie(jwt, cookieSecure, emptyToNull(cookieDomain), cookieSameSite, 0);
 
-        return ResponseEntity.ok()
-                .header("Set-Cookie", cookie.toString())
-                .body(new AuthResponse("ok"));
-    }
+    // 4. *** DEVOLVER EL TOKEN EN EL BODY PARA SWAGGER ***
+    AuthResponse responseBody = new AuthResponse(jwt);
 
-    public record MeResponse(Long id, String userName, String apellido, List<String> roles) {
+    // 5. Enviar cookie + token en body
+    return ResponseEntity.ok()
+            .header("Set-Cookie", cookie.toString())
+            .body(responseBody);
+}
+
+
+    public record MeResponse(Long id, String userName, String apellido, String email, List<String> roles) {
     }
 
     @GetMapping("/me")
@@ -98,11 +103,13 @@ public class AuthController {
         Long id = tryInvoke(principal, "getId", Long.class); // si tu User tiene getId()
         String apellido = tryInvoke(principal, "getApellido", String.class); // si tu User tiene getNickname()
 
+        String email = tryInvoke(principal, "getEmail", String.class);
+
         List<String> roles = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority) // p.ej. "ROLE_ADMIN"
                 .toList();
 
-        return new MeResponse(id, userName, apellido, roles);
+        return new MeResponse(id, userName, apellido, email, roles);
     }
 
     @SuppressWarnings("unchecked")

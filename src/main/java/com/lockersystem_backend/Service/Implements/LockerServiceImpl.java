@@ -9,8 +9,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.lockersystem_backend.Entity.Locker;
 import com.lockersystem_backend.Entity.Ubicacion;
-import com.lockersystem_backend.Model.CreateLockerRequest;
-import com.lockersystem_backend.Model.UpdateLockerRequest;
+import com.lockersystem_backend.Model.LockerDTOs.CreateLockerRequest;
+import com.lockersystem_backend.Model.LockerDTOs.LockerResponse;
+import com.lockersystem_backend.Model.LockerDTOs.UpdateLockerRequest;
 import com.lockersystem_backend.Repository.LockerRepository;
 import com.lockersystem_backend.Repository.UbicacionRepository;
 import com.lockersystem_backend.Service.Interfaces.LockerService;
@@ -25,11 +26,29 @@ public class LockerServiceImpl implements LockerService {
         this.lockerRepository = lockerRepository;
         this.ubicacionRepository = ubicacionRepository;
     }
+    private void validarEstado(String estado) {
+
+    if (estado == null) return; // para actualizaciones parciales
+
+    if (!estado.equalsIgnoreCase("disponible") &&
+        !estado.equalsIgnoreCase("ocupado") &&
+        !estado.equalsIgnoreCase("en mantenimiento")) {
+
+        throw new ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            "Estado inválido. Solo se permite: disponible, ocupado o en mantenimiento"
+        );
+    }
+}
+
 
     @Override
-    public List<Locker> findAll() {
-        return lockerRepository.findAll();
-    }
+ public List<LockerResponse> findAll() {
+    return lockerRepository.findAll()
+            .stream()
+            .map(LockerResponse::fromEntity)
+            .toList();
+}
 
     @Override
     public Optional<Locker> findById(Long id) {
@@ -50,6 +69,7 @@ public class LockerServiceImpl implements LockerService {
 
         Locker l = new Locker();
         l.setNumeroLocker(dto.getNumeroLocker());
+        validarEstado(dto.getEstado());
         l.setEstado(dto.getEstado());
 
         // 🔹 Validar que exista la ubicación
@@ -73,6 +93,7 @@ public class LockerServiceImpl implements LockerService {
             l.setNumeroLocker(dto.getNumeroLocker());
         }
         if (dto.getEstado() != null) {
+            validarEstado(dto.getEstado());
             l.setEstado(dto.getEstado());
         }
         if (dto.getUbicacionId() != null) {

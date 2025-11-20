@@ -18,36 +18,39 @@ public class SecurityConfig {
         this.authenticationProvider = authenticationProvider;
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> {
-                })
-                // Stateless: JWT, sin sesiones del servidor
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Provider (Boot lo autoconfigura si expusiste UserDetailsService +
-                // PasswordEncoder)
-                .authenticationProvider(authenticationProvider)
-                // Orden correcto del filtro JWT
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                // Autorización por rutas/roles
-                .authorizeHttpRequests(auth -> auth
-                        // Público
-                        .requestMatchers(
-                                "/auth/**",
-                                "/docs/**",
-                                "/actuator/health")
-                        .permitAll()
+   @Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable())
+        .cors(cors -> {})
+        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authenticationProvider(authenticationProvider)
+        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+        .authorizeHttpRequests(auth -> auth
+            // ENDPOINTS PÚBLICOS
+            .requestMatchers(
+                "/auth/**",
+                "/docs/**",
+                "/actuator/health",
+                "/lockers/**",
+                "/ubicaciones/**",
 
-                        // Por roles (asegúrate que los GrantedAuthority tengan prefijo "ROLE_")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/cliente/**").hasRole("CLIENTE")
+                // SWAGGER (sin /api porque el context-path ya lo añade Spring)
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**",
+                "/v3/api-docs.yaml",
+                "/v3/api-docs.json"
+            ).permitAll()
 
-                        // Cualquier otra ruta requiere autenticación
-                        .anyRequest().authenticated());
+            // ROLES
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .requestMatchers("/cliente/**").hasRole("CLIENTE")
 
-        return http.build();
-    }
+            // RESTO REQUIERE JWT
+            .anyRequest().authenticated()
+        );
 
+    return http.build();
+}
 }
