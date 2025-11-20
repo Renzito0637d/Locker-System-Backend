@@ -10,6 +10,7 @@ import com.lockersystem_backend.Entity.Reporte;
 import com.lockersystem_backend.Entity.User;
 import com.lockersystem_backend.Entity.Locker;
 import com.lockersystem_backend.Model.ReporteDTOs.CreateReporteRequest;
+import org.springframework.transaction.annotation.Transactional;
 import com.lockersystem_backend.Model.ReporteDTOs.ReporteResponse;
 import com.lockersystem_backend.Model.ReporteDTOs.UpdateReporteRequest;
 import com.lockersystem_backend.Repository.LockerRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 @Service
+@Transactional
 public class ReporteServiceImpl implements ReporteService {
 
     private final ReporteRepository reporteRepository;

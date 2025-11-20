@@ -9,18 +9,18 @@ import org.springframework.web.bind.annotation.*;
 
 import com.lockersystem_backend.Entity.Reporte;
 import com.lockersystem_backend.Model.ReporteDTOs.CreateReporteRequest;
-import com.lockersystem_backend.Model.ReporteDTOs.ReporteResponse;
 import com.lockersystem_backend.Model.ReporteDTOs.UpdateReporteRequest;
+import com.lockersystem_backend.Model.ReporteDTOs.ReporteResponse;
 import com.lockersystem_backend.Service.Implements.ReporteServiceImpl;
 
 @RestController
-@RequestMapping("/reportes")
+@RequestMapping("/api/reportes")
 public class ReporteController {
 
     @Autowired
     private ReporteServiceImpl reporteService;
 
-    @GetMapping("/")
+    @GetMapping
     public List<ReporteResponse> getAll() {
         return reporteService.findAllResponses();
     }
