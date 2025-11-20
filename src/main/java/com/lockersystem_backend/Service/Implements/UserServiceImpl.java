@@ -95,16 +95,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User user) {
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("El correo es obligatorio");
+        // Si el usuario ya tiene ID (es una actualización), confiamos en la validación
+        // del Controller
+        // y guardamos directamente para evitar el error de "Falso Positivo".
+        if (user.getId() != null) {
+            return userRepository.save(user);
         }
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
-            throw new IllegalArgumentException("La contraseña es obligatoria");
+
+        // Si es usuario nuevo (id null), sí validamos duplicados aquí también
+        if (userRepository.existsByEmail(user.getUsername())) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese user name");
         }
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Ya existe un usuario con ese correo");
+        if (userRepository.existsByUserName(user.getUsername())) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese user name");
         }
-        user.setPasswordHash(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -118,9 +122,19 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.deleteById(id);
     }
-    
+
     @Override
     public Optional<User> buscarUserPorCorreo(String email) {
         return userRepository.findUserByUserName(email);
+    }
+
+    @Override
+    public boolean existsByUserName(String userName) {
+        return userRepository.existsByUserName(userName);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
