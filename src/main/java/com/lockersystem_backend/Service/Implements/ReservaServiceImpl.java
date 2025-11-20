@@ -107,11 +107,23 @@ public class ReservaServiceImpl implements ReservaService {
         return reservaRepository.save(reservaExistente);
     }
 
-    @Override
+    @Transactional // Importante para que liberar locker y borrar reserva sea una sola operación
     public void eliminarReserva(Long id) {
-        if (!reservaRepository.existsById(id)) {
-            throw new RuntimeException("Reserva no encontrada");
+        // 1. Buscamos la reserva antes de borrarla
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+        // 2. Verificamos si tenemos que liberar el locker
+        // Si la reserva estaba APROBADA, significa que tenía el locker ocupado.
+        if ("APROBADA".equalsIgnoreCase(reserva.getEstadoReserva().toString())) {
+            Locker locker = reserva.getLocker();
+            if (locker != null) {
+                locker.setEstado("DISPONIBLE");
+                lockerRepository.save(locker); // ¡Locker liberado!
+            }
         }
-        reservaRepository.deleteById(id);
+
+        // 3. Ahora sí, la borramos físicamente
+        reservaRepository.delete(reserva);
     }
 }
