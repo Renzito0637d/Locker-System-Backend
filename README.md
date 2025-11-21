@@ -80,7 +80,7 @@ El servidor se iniciará por defecto en el puerto 8080. ¡Y listo! El backend es
 | RF07 |El sistema debe asignar un locker disponible al usuario y cambiar el estado del locker a “ocupado”. |:heavy_check_mark:|
 | RF08   |El sistema debe permitir que un usuario libere un locker cuando ya no lo use. |:heavy_check_mark:|
 | RF09   |El sistema debe actualizar el estado del locker a “disponible” una vez liberado. |:heavy_check_mark:|
-| RF10   |El sistema debe permitir al administrador hacer un mantenimiento de los usuarios.|:alarm_clock:|
+| RF10   |El sistema debe permitir al administrador hacer un mantenimiento de los usuarios.|:heavy_check_mark:|
 | RF11   | El sistema debe permitir iniciar sesión y autenticarse según el rol del usuario. |:heavy_check_mark:|
 | RF12   |  El sistema debe proteger el acceso a funciones administrativas mediante autenticación y autorización. |:heavy_check_mark:|
 | RF13   | Los usuarios deben poder ver los lockers asignados a ellos. |:heavy_check_mark:|

@@ -32,7 +32,7 @@ public class LockerServiceImpl implements LockerService {
 
     if (!estado.equalsIgnoreCase("disponible") &&
         !estado.equalsIgnoreCase("ocupado") &&
-        !estado.equalsIgnoreCase("en mantenimiento")) {
+        !estado.equalsIgnoreCase("mantenimiento")) {
 
         throw new ResponseStatusException(
             HttpStatus.BAD_REQUEST,
