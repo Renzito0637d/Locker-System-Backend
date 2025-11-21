@@ -9,9 +9,21 @@ import java.util.Optional;
 public interface UserService {
     AuthResponse registerEstudiante(RegisterRequest request);
 
+    public AuthResponse registerAdmin(RegisterRequest request);
+
     // Métodos CRUD simples
     List<User> findAll();
+
     Optional<User> findById(Long id);
+
     User save(User user);
+
     void deleteById(Long id);
+
+    public Optional<User> buscarUserPorCorreo(String email);
+
+    boolean existsByUserName(String userName);
+
+    boolean existsByEmail(String email);
+
 }

@@ -4,9 +4,12 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.lockersystem_backend.Entity.Enum.EstadoReporte;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,7 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Entity
 @Table(name = "reportes")
 public class Reporte {
@@ -27,19 +30,25 @@ public class Reporte {
 
     @Column(name = "descripcion", nullable = false, columnDefinition = "TEXT")
     private String descripcion;
-    
+
     @Column(name = "fecha_reporte", nullable = false)
     private LocalDateTime fechaReporte;
-    
+
     @Column(name = "tipo_reporte", length = 100)
     private String tipoReporte;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", length = 20, nullable = false)
+    private EstadoReporte estado = EstadoReporte.PENDIENTE;
+
+    @Column(name = "acciones_tomadas", columnDefinition = "TEXT")
+    private String accionesTomadas;
 
     // Relación: Muchos reportes son creados por un usuario
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
-    @JsonBackReference 
+    @JsonBackReference
     private User user;
-    
 
     // Relación: Muchos reportes se refieren a un locker
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,14 +59,19 @@ public class Reporte {
     public Reporte() {
     }
 
-    public Reporte(Long id, String descripcion, LocalDateTime fechaReporte, String tipoReporte, User user, Locker locker) {
+    public Reporte(Long id, String descripcion, LocalDateTime fechaReporte, String tipoReporte, EstadoReporte estado,
+            String accionesTomadas, User user, Locker locker) {
         this.id = id;
         this.descripcion = descripcion;
         this.fechaReporte = fechaReporte;
         this.tipoReporte = tipoReporte;
+        this.accionesTomadas = accionesTomadas;
+        this.estado = estado;
         this.user = user;
         this.locker = locker;
     }
+
+    // getters / setters
 
     public Long getId() {
         return id;
@@ -91,6 +105,22 @@ public class Reporte {
         this.tipoReporte = tipoReporte;
     }
 
+    public String getAccionesTomadas() {
+        return accionesTomadas;
+    }
+
+    public void setAccionesTomadas(String accionesTomadas) {
+        this.accionesTomadas = accionesTomadas;
+    }
+
+    public EstadoReporte getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoReporte estado) {
+        this.estado = estado;
+    }
+
     public User getUser() {
         return user;
     }
@@ -106,5 +136,4 @@ public class Reporte {
     public void setLocker(Locker locker) {
         this.locker = locker;
     }
-    
 }

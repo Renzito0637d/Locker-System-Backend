@@ -5,11 +5,12 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.lockersystem_backend.Entity.Reserva;
 import com.lockersystem_backend.Entity.Locker;
 import com.lockersystem_backend.Entity.User;
-import com.lockersystem_backend.Model.ReservaRequest;
+import com.lockersystem_backend.Model.ReservaDTOs.ReservaRequest;
 import com.lockersystem_backend.Repository.ReservaRepository;
 import com.lockersystem_backend.Repository.LockerRepository;
 import com.lockersystem_backend.Repository.UserRepository;
@@ -55,29 +56,74 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
+    @Transactional
     public Reserva actualizarReserva(Long id, ReservaRequest request) {
+        // 1. Buscamos la reserva existente
         Reserva reservaExistente = reservaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        Locker locker = lockerRepository.findById(request.getLockerId())
-                .orElseThrow(() -> new RuntimeException("Locker no encontrado"));
+        // 2. Actualizamos fechas si vienen
+        if (request.getFechaInicio() != null) reservaExistente.setFechaInicio(request.getFechaInicio());
+        if (request.getFechaFin() != null) reservaExistente.setFechaFin(request.getFechaFin());
 
-        reservaExistente.setUser(user);
-        reservaExistente.setLocker(locker);
-        reservaExistente.setFechaInicio(request.getFechaInicio());
-        reservaExistente.setFechaFin(request.getFechaFin());
-        reservaExistente.setEstadoReserva(request.getEstadoReserva());
+        // 3. Actualizamos referencias (User/Locker) solo si vienen IDs nuevos
+        if (request.getUserId() != null) {
+            User user = userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            reservaExistente.setUser(user);
+        }
 
+        if (request.getLockerId() != null) {
+            Locker locker = lockerRepository.findById(request.getLockerId())
+                    .orElseThrow(() -> new RuntimeException("Locker no encontrado"));
+            reservaExistente.setLocker(locker);
+        }
+
+        // 4. Actualizamos el ESTADO DE LA RESERVA y sincronizamos el LOCKER
+        if (request.getEstadoReserva() != null) {
+            String nuevoEstado = request.getEstadoReserva(); // Asumiendo String
+            
+            // Asignamos el nuevo estado a la reserva
+            reservaExistente.setEstadoReserva(nuevoEstado);
+
+            // Obtenemos el locker que tiene esta reserva (ya sea el antiguo o el nuevo asignado arriba)
+            Locker lockerAsociado = reservaExistente.getLocker();
+            
+            if (lockerAsociado != null) {
+                // Lógica automática:
+                if ("APROBADA".equalsIgnoreCase(nuevoEstado)) {
+                    lockerAsociado.setEstado("OCUPADO");
+                } else if ("FINALIZADA".equalsIgnoreCase(nuevoEstado) || 
+                           "CANCELADA".equalsIgnoreCase(nuevoEstado) || 
+                           "RECHAZADA".equalsIgnoreCase(nuevoEstado)) {
+                    lockerAsociado.setEstado("DISPONIBLE");
+                }
+                // Guardamos el cambio de estado en la tabla de lockers
+                lockerRepository.save(lockerAsociado);
+            }
+        }
+
+        // 5. Guardamos y retornamos la reserva
         return reservaRepository.save(reservaExistente);
     }
 
-    @Override
+    @Transactional // Importante para que liberar locker y borrar reserva sea una sola operación
     public void eliminarReserva(Long id) {
-        if (!reservaRepository.existsById(id)) {
-            throw new RuntimeException("Reserva no encontrada");
+        // 1. Buscamos la reserva antes de borrarla
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+        // 2. Verificamos si tenemos que liberar el locker
+        // Si la reserva estaba APROBADA, significa que tenía el locker ocupado.
+        if ("APROBADA".equalsIgnoreCase(reserva.getEstadoReserva().toString())) {
+            Locker locker = reserva.getLocker();
+            if (locker != null) {
+                locker.setEstado("DISPONIBLE");
+                lockerRepository.save(locker); // ¡Locker liberado!
+            }
         }
-        reservaRepository.deleteById(id);
+
+        // 3. Ahora sí, la borramos físicamente
+        reservaRepository.delete(reserva);
     }
 }

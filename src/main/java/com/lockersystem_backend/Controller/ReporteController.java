@@ -1,48 +1,53 @@
 package com.lockersystem_backend.Controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.lockersystem_backend.Entity.Reporte;
-import com.lockersystem_backend.Model.CreateReporteRequest;
-import com.lockersystem_backend.Model.UpdateReporteRequest;
-import com.lockersystem_backend.Model.ReporteResponse;
-import com.lockersystem_backend.Service.Implements.ReporteServiceImpl;
+import com.lockersystem_backend.Model.ReporteDTOs.CreateReporteRequest;
+import com.lockersystem_backend.Model.ReporteDTOs.UpdateReporteRequest;
+import com.lockersystem_backend.Model.ReporteDTOs.ReporteResponse;
+import com.lockersystem_backend.Service.Interfaces.ReporteService;
 
 @RestController
-@RequestMapping("/api/reportes")
+@RequestMapping("/reportes")
 public class ReporteController {
 
     @Autowired
-    private ReporteServiceImpl reporteService;
+    private ReporteService reporteService;
 
-    @GetMapping("/")
-    public List<ReporteResponse> getAll() {
-        return reporteService.findAllResponses();
+    // --- AQUÍ ESTÁ LA SOLUCIÓN AL BUCLE INFINITO ---
+    // Convertimos cada entidad a DTO antes de responder
+    @GetMapping
+    public List<ReporteResponse> findAll() {
+        return reporteService.findAll().stream()
+                .map(ReporteResponse::new)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReporteResponse> getById(@PathVariable Long id) {
-        Optional<Reporte> r = reporteService.findById(id);
-        return r.map(rep -> ResponseEntity.ok(reporteService.mapToResponse(rep)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ReporteResponse> findById(@PathVariable Long id) {
+        return reporteService.findById(id)
+                .map(rep -> ResponseEntity.ok(new ReporteResponse(rep)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<ReporteResponse> create(@RequestBody CreateReporteRequest dto) {
-        Reporte created = reporteService.create(dto);
-        return ResponseEntity.status(201).body(reporteService.mapToResponse(created));
+        Reporte r = reporteService.create(dto);
+        return ResponseEntity.ok(new ReporteResponse(r));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ReporteResponse> update(@PathVariable Long id, @RequestBody UpdateReporteRequest dto) {
-        var updated = reporteService.update(id, dto);
-        return updated.map(rep -> ResponseEntity.ok(reporteService.mapToResponse(rep)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return reporteService.update(id, dto)
+                .map(r -> ResponseEntity.ok(new ReporteResponse(r)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.lockersystem_backend.Entity.Reserva;
-import com.lockersystem_backend.Model.ReservaRequest;
+import com.lockersystem_backend.Model.ReservaDTOs.ReservaRequest;
 
 public interface ReservaService {
     List<Reserva> listarReservas();

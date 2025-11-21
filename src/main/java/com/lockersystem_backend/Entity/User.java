@@ -32,10 +32,11 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // <-- importante
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" }) // <-- importante
 @Entity
 @Table(name = "users", indexes = {
-        @Index(name = "idx_user_email", columnList = "email", unique = true)
+        @Index(name = "idx_user_email", columnList = "email", unique = true),
+        @Index(name = "idx_user_username", columnList = "user_name", unique = true)
 })
 public class User implements UserDetails {
     @Id
@@ -43,7 +44,7 @@ public class User implements UserDetails {
     private Long id;
 
     @NotBlank
-    @Column(nullable = false, length = 120)
+    @Column(nullable = false, length = 120, unique = true)
     private String userName;
 
     @NotBlank
