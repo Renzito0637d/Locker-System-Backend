@@ -48,7 +48,7 @@ public class ReporteServiceImpl implements ReporteService {
     @Override
     public Reporte create(CreateReporteRequest dto) {
         // Manejo de errores simplificado con orElseThrow()
-        User user = userRepository.findById(dto.getUserId()).orElseThrow(); 
+        User user = userRepository.findById(dto.getUserId()).orElseThrow();
         Locker locker = lockerRepository.findById(dto.getLockerId()).orElseThrow();
 
         Reporte reporte = new Reporte();
@@ -65,8 +65,26 @@ public class ReporteServiceImpl implements ReporteService {
     @Override
     public Optional<Reporte> update(Long id, UpdateReporteRequest dto) {
         return reporteRepository.findById(id).map(r -> {
-            r.setDescripcion(dto.getDescripcion());
-            r.setTipoReporte(dto.getTipoReporte());
+            // Solo actualizamos si el dato NO es nulo ni vacío
+            // Así evitamos borrar la descripción original si el admin solo manda acciones
+            if (dto.getDescripcion() != null && !dto.getDescripcion().isEmpty()) {
+                r.setDescripcion(dto.getDescripcion());
+            }
+
+            if (dto.getTipoReporte() != null && !dto.getTipoReporte().isEmpty()) {
+                r.setTipoReporte(dto.getTipoReporte());
+            }
+
+            // Campo crítico para el ADMIN
+            if (dto.getAccionesTomadas() != null) {
+                r.setAccionesTomadas(dto.getAccionesTomadas());
+            }
+
+            // Actualizar estado (Ej: Pasar de PENDIENTE a RESUELTO)
+            if (dto.getEstado() != null) {
+                r.setEstado(dto.getEstado());
+            }
+
             return reporteRepository.save(r);
         });
     }
@@ -75,15 +93,16 @@ public class ReporteServiceImpl implements ReporteService {
     public void deleteById(Long id) {
         reporteRepository.deleteById(id);
     }
-    
+
     // ----------------------------------------
     // AGREGADO: Listado completo mapeado (Requerido por la interfaz)
     // ----------------------------------------
     /**
      * @Override: ESTE MÉTODO FALTABA Y CAUSABA EL ERROR DE COMPILACIÓN.
-     * Recupera todos los reportes, los mapea a ReporteResponse y los retorna.
+     *            Recupera todos los reportes, los mapea a ReporteResponse y los
+     *            retorna.
      */
-    @Override 
+    @Override
     public List<ReporteResponse> findAllResponses() {
         // Usa findAll() para obtener las entidades y luego mapearlas.
         return reporteRepository.findAll().stream()
@@ -96,7 +115,7 @@ public class ReporteServiceImpl implements ReporteService {
     // ----------------------------------------
     @Override
     public List<ReporteResponse> generarInforme(String estado, Long lockerId, Long userId,
-                                             LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+            LocalDateTime fechaInicio, LocalDateTime fechaFin) {
 
         List<Reporte> lista = reporteRepository.findAll();
 
@@ -105,8 +124,9 @@ public class ReporteServiceImpl implements ReporteService {
                 .filter(r -> lockerId == null || r.getLocker().getId().equals(lockerId))
                 .filter(r -> userId == null || r.getUser().getId().equals(userId))
                 // NOTA: Usé isAfter para fechaInicio y isBefore para fechaFin (exclusivo)
-                // Si quieres inclusivo, usa isAfter(fechaInicio) || r.getFechaReporte().isEqual(fechaInicio)
-                .filter(r -> fechaInicio == null || r.getFechaReporte().isAfter(fechaInicio)) 
+                // Si quieres inclusivo, usa isAfter(fechaInicio) ||
+                // r.getFechaReporte().isEqual(fechaInicio)
+                .filter(r -> fechaInicio == null || r.getFechaReporte().isAfter(fechaInicio))
                 .filter(r -> fechaFin == null || r.getFechaReporte().isBefore(fechaFin))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -121,9 +141,10 @@ public class ReporteServiceImpl implements ReporteService {
 
         // Asegura que el enum exista antes de guardar.
         r.setEstado(EstadoReporte.valueOf(nuevoEstado.toUpperCase()));
-        
-        // Si necesitas guardar la nota, debes tener un campo `nota` en la entidad Reporte
-        // r.setNota(nota); 
+
+        // Si necesitas guardar la nota, debes tener un campo `nota` en la entidad
+        // Reporte
+        // r.setNota(nota);
 
         return mapToResponse(reporteRepository.save(r));
     }
@@ -140,7 +161,6 @@ public class ReporteServiceImpl implements ReporteService {
                 r.getFechaReporte(),
                 r.getUser() != null ? r.getUser().getUserName() : null,
                 r.getLocker() != null ? r.getLocker().getNumeroLocker() : null,
-                r.getEstado() != null ? r.getEstado().name() : null
-        );
+                r.getEstado() != null ? r.getEstado().name() : null);
     }
 }

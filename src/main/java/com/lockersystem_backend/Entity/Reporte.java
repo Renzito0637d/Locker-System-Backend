@@ -18,8 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Entity
 @Table(name = "reportes")
 public class Reporte {
@@ -31,10 +30,10 @@ public class Reporte {
 
     @Column(name = "descripcion", nullable = false, columnDefinition = "TEXT")
     private String descripcion;
-    
+
     @Column(name = "fecha_reporte", nullable = false)
     private LocalDateTime fechaReporte;
-    
+
     @Column(name = "tipo_reporte", length = 100)
     private String tipoReporte;
 
@@ -42,12 +41,15 @@ public class Reporte {
     @Column(name = "estado", length = 20, nullable = false)
     private EstadoReporte estado = EstadoReporte.PENDIENTE;
 
+    @Column(name = "acciones_tomadas", columnDefinition = "TEXT")
+    private String accionesTomadas;
+
     // Relación: Muchos reportes son creados por un usuario
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
-    @JsonBackReference 
+    @JsonBackReference
     private User user;
-    
+
     // Relación: Muchos reportes se refieren a un locker
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_locker", nullable = false)
@@ -57,11 +59,13 @@ public class Reporte {
     public Reporte() {
     }
 
-    public Reporte(Long id, String descripcion, LocalDateTime fechaReporte, String tipoReporte, EstadoReporte estado, User user, Locker locker) {
+    public Reporte(Long id, String descripcion, LocalDateTime fechaReporte, String tipoReporte, EstadoReporte estado,
+            String accionesTomadas, User user, Locker locker) {
         this.id = id;
         this.descripcion = descripcion;
         this.fechaReporte = fechaReporte;
         this.tipoReporte = tipoReporte;
+        this.accionesTomadas = accionesTomadas;
         this.estado = estado;
         this.user = user;
         this.locker = locker;
@@ -69,24 +73,67 @@ public class Reporte {
 
     // getters / setters
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getFechaReporte() { return fechaReporte; }
-    public void setFechaReporte(LocalDateTime fechaReporte) { this.fechaReporte = fechaReporte; }
+    public String getDescripcion() {
+        return descripcion;
+    }
 
-    public String getTipoReporte() { return tipoReporte; }
-    public void setTipoReporte(String tipoReporte) { this.tipoReporte = tipoReporte; }
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 
-    public EstadoReporte getEstado() { return estado; }
-    public void setEstado(EstadoReporte estado) { this.estado = estado; }
+    public LocalDateTime getFechaReporte() {
+        return fechaReporte;
+    }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public void setFechaReporte(LocalDateTime fechaReporte) {
+        this.fechaReporte = fechaReporte;
+    }
 
-    public Locker getLocker() { return locker; }
-    public void setLocker(Locker locker) { this.locker = locker; }
+    public String getTipoReporte() {
+        return tipoReporte;
+    }
+
+    public void setTipoReporte(String tipoReporte) {
+        this.tipoReporte = tipoReporte;
+    }
+
+    public String getAccionesTomadas() {
+        return accionesTomadas;
+    }
+
+    public void setAccionesTomadas(String accionesTomadas) {
+        this.accionesTomadas = accionesTomadas;
+    }
+
+    public EstadoReporte getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoReporte estado) {
+        this.estado = estado;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Locker getLocker() {
+        return locker;
+    }
+
+    public void setLocker(Locker locker) {
+        this.locker = locker;
+    }
 }
