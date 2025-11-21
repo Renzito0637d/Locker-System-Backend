@@ -1,38 +1,37 @@
 package com.lockersystem_backend.Service.Implements;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.lockersystem_backend.Entity.Enum.EstadoReporte;
 import com.lockersystem_backend.Entity.Reporte;
 import com.lockersystem_backend.Entity.User;
 import com.lockersystem_backend.Entity.Locker;
-import com.lockersystem_backend.Model.ReporteDTOs.CreateReporteRequest;
-import com.lockersystem_backend.Model.ReporteDTOs.ReporteResponse;
-import com.lockersystem_backend.Model.ReporteDTOs.UpdateReporteRequest;
-import com.lockersystem_backend.Repository.LockerRepository;
 import com.lockersystem_backend.Repository.ReporteRepository;
 import com.lockersystem_backend.Repository.UserRepository;
+import com.lockersystem_backend.Repository.LockerRepository;
 import com.lockersystem_backend.Service.Interfaces.ReporteService;
-
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
-
+import com.lockersystem_backend.Model.ReporteDTOs.CreateReporteRequest;
+import com.lockersystem_backend.Model.ReporteDTOs.UpdateReporteRequest;
 @Service
 public class ReporteServiceImpl implements ReporteService {
 
-    private final ReporteRepository reporteRepository;
-    private final UserRepository userRepository;
-    private final LockerRepository lockerRepository;
+    @Autowired
+    private ReporteRepository reporteRepository;
 
-    public ReporteServiceImpl(ReporteRepository reporteRepository, UserRepository userRepository, LockerRepository lockerRepository) {
-        this.reporteRepository = reporteRepository;
-        this.userRepository = userRepository;
-        this.lockerRepository = lockerRepository;
-    }
+    @Autowired
+    private UserRepository userRepository;
 
+    @Autowired
+    private LockerRepository lockerRepository;
+
+    // ----------------------------------------
+    // CRUD BÁSICO
+    // ----------------------------------------
     @Override
     public List<Reporte> findAll() {
         return reporteRepository.findAll();
@@ -45,85 +44,51 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public Reporte create(CreateReporteRequest dto) {
-        Reporte r = new Reporte();
-        r.setDescripcion(dto.getDescripcion());
-        r.setFechaReporte(java.time.LocalDateTime.now());
-        r.setTipoReporte(dto.getTipoReporte());
+        // Manejo de errores simplificado con orElseThrow()
+        User user = userRepository.findById(dto.getUserId()).orElseThrow();
+        Locker locker = lockerRepository.findById(dto.getLockerId()).orElseThrow();
 
-        // Validar usuario
-        if (dto.getUserId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId es obligatorio");
-        }
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-        r.setUser(user);
+        Reporte reporte = new Reporte();
+        reporte.setDescripcion(dto.getDescripcion());
+        reporte.setTipoReporte(dto.getTipoReporte());
+        reporte.setFechaReporte(LocalDateTime.now());
+        reporte.setEstado(EstadoReporte.PENDIENTE);
+        reporte.setUser(user);
+        reporte.setLocker(locker);
 
-        // Validar locker
-        if (dto.getLockerId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lockerId es obligatorio");
-        }
-        Locker locker = lockerRepository.findById(dto.getLockerId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Locker no encontrado"));
-        r.setLocker(locker);
-
-        return reporteRepository.save(r);
+        return reporteRepository.save(reporte);
     }
 
     @Override
     public Optional<Reporte> update(Long id, UpdateReporteRequest dto) {
-        var opt = reporteRepository.findById(id);
-        if (opt.isEmpty()) return Optional.empty();
-
-        Reporte r = opt.get();
-
-        if (dto.getDescripcion() != null) r.setDescripcion(dto.getDescripcion());
-        if (dto.getTipoReporte() != null) r.setTipoReporte(dto.getTipoReporte());
-        if (dto.getFechaReporte() != null) {
-            if (dto.getFechaReporte().isAfter(java.time.LocalDateTime.now())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha del reporte no puede ser futura");
+        return reporteRepository.findById(id).map(r -> {
+            // Solo actualizamos si el dato NO es nulo ni vacío
+            // Así evitamos borrar la descripción original si el admin solo manda acciones
+            if (dto.getDescripcion() != null && !dto.getDescripcion().isEmpty()) {
+                r.setDescripcion(dto.getDescripcion());
             }
-            r.setFechaReporte(dto.getFechaReporte());
-        }
 
-        if (dto.getUserId() != null) {
-            User user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-            r.setUser(user);
-        }
+            if (dto.getTipoReporte() != null && !dto.getTipoReporte().isEmpty()) {
+                r.setTipoReporte(dto.getTipoReporte());
+            }
 
-        if (dto.getLockerId() != null) {
-            Locker locker = lockerRepository.findById(dto.getLockerId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Locker no encontrado"));
-            r.setLocker(locker);
-        }
+            // Campo crítico para el ADMIN
+            if (dto.getAccionesTomadas() != null) {
+                r.setAccionesTomadas(dto.getAccionesTomadas());
+            }
 
-        Reporte saved = reporteRepository.save(r);
-        return Optional.of(saved);
+            // Actualizar estado (Ej: Pasar de PENDIENTE a RESUELTO)
+            if (dto.getEstado() != null) {
+                r.setEstado(dto.getEstado());
+            }
+
+            return reporteRepository.save(r);
+        });
     }
 
     @Override
     public void deleteById(Long id) {
-        if (!reporteRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reporte no encontrado");
-        }
         reporteRepository.deleteById(id);
     }
 
-    // Método opcional para mapear a DTO de respuesta
-    public ReporteResponse mapToResponse(Reporte r) {
-        return new ReporteResponse(
-            r.getId(),
-            r.getDescripcion(),
-            r.getTipoReporte(),
-            r.getFechaReporte(),
-            r.getUser() != null ? r.getUser().getUserName() : null,
-            r.getLocker() != null ? r.getLocker().getNumeroLocker() : null
-        );
-    }
-
-    public List<ReporteResponse> findAllResponses() {
-        return reporteRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
 }
