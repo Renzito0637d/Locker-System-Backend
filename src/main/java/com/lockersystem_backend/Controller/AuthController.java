@@ -60,29 +60,34 @@ public class AuthController {
         this.userDetailsService = userDetailsService;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthenticationRequest req) {
-        Authentication auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getUserName(), req.getPassword()));
+   @PostMapping("/login")
+public ResponseEntity<AuthResponse> login(@RequestBody AuthenticationRequest req) {
+    // 1. Autenticación normal
+    Authentication auth = authManager.authenticate(
+            new UsernamePasswordAuthenticationToken(req.getUserName(), req.getPassword()));
 
-        UserDetails user = (UserDetails) auth.getPrincipal();
-        String jwt = jwtService.generateAccessToken(user);
+    UserDetails user = (UserDetails) auth.getPrincipal();
+    
+    // 2. Generar JWT
+    String jwt = jwtService.generateAccessToken(user);
 
-        boolean isCliente = user.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_CLIENTE".equals(a.getAuthority()));
+    boolean isCliente = user.getAuthorities().stream()
+            .anyMatch(a -> "ROLE_CLIENTE".equals(a.getAuthority()));
 
-        // CLIENTE => cookie persistente (maxAge). Otros roles => cookie de sesión (sin
-        // maxAge).
-        ResponseCookie cookie = isCliente
-                ? CookieUtils.accessCookie(jwt, cookieSecure, emptyToNull(cookieDomain), cookieSameSite,
-                        accessExp)
-                : CookieUtils.accessCookie(jwt, cookieSecure, emptyToNull(cookieDomain), cookieSameSite,
-                        0);
+    // 3. Crear cookie EXACTO como ya usabas
+    ResponseCookie cookie = isCliente
+            ? CookieUtils.accessCookie(jwt, cookieSecure, emptyToNull(cookieDomain), cookieSameSite, accessExp)
+            : CookieUtils.accessCookie(jwt, cookieSecure, emptyToNull(cookieDomain), cookieSameSite, 0);
 
-        return ResponseEntity.ok()
-                .header("Set-Cookie", cookie.toString())
-                .body(new AuthResponse("ok"));
-    }
+    // 4. *** DEVOLVER EL TOKEN EN EL BODY PARA SWAGGER ***
+    AuthResponse responseBody = new AuthResponse(jwt);
+
+    // 5. Enviar cookie + token en body
+    return ResponseEntity.ok()
+            .header("Set-Cookie", cookie.toString())
+            .body(responseBody);
+}
+
 
     public record MeResponse(Long id, String userName, String apellido, String email, List<String> roles) {
     }
@@ -131,7 +136,7 @@ public class AuthController {
 
         // Solo permitir si sigue siendo CLIENTE
         boolean isCliente = user.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_CLIENTE".equals(a.getAuthority()));
+                .anyMatch(a -> "ROLE_ESTUDIANTE".equals(a.getAuthority()));
         if (!isCliente)
             return ResponseEntity.status(403).body(Map.of("message", "forbidden"));
 
