@@ -2,6 +2,7 @@ package com.lockersystem_backend.Controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,60 +21,38 @@ public class ReporteController {
     @Autowired
     private ReporteService reporteService;
 
+    // --- AQUÍ ESTÁ LA SOLUCIÓN AL BUCLE INFINITO ---
+    // Convertimos cada entidad a DTO antes de responder
     @GetMapping
-    public List<Reporte> findAll() {
-        return reporteService.findAll();
+    public List<ReporteResponse> findAll() {
+        return reporteService.findAll().stream()
+                .map(ReporteResponse::new)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id) {
+    public ResponseEntity<ReporteResponse> findById(@PathVariable Long id) {
         return reporteService.findById(id)
-                .map(rep -> ResponseEntity.ok(reporteService.mapToResponse(rep)))
+                .map(rep -> ResponseEntity.ok(new ReporteResponse(rep)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<ReporteResponse> create(@RequestBody CreateReporteRequest dto) {
         Reporte r = reporteService.create(dto);
-        return ResponseEntity.ok(reporteService.mapToResponse(r));
+        return ResponseEntity.ok(new ReporteResponse(r));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody UpdateReporteRequest dto) {
+    public ResponseEntity<ReporteResponse> update(@PathVariable Long id, @RequestBody UpdateReporteRequest dto) {
         return reporteService.update(id, dto)
-                .map(r -> ResponseEntity.ok(reporteService.mapToResponse(r)))
+                .map(r -> ResponseEntity.ok(new ReporteResponse(r)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         reporteService.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    // ----------------------------------------
-    // RF16 – Generar informe
-    // ----------------------------------------
-    @GetMapping("/informe")
-    public List<ReporteResponse> generarInforme(
-            @RequestParam(required = false) String estado,
-            @RequestParam(required = false) Long lockerId,
-            @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) LocalDateTime fechaInicio,
-            @RequestParam(required = false) LocalDateTime fechaFin
-    ) {
-        return reporteService.generarInforme(estado, lockerId, userId, fechaInicio, fechaFin);
-    }
-
-    // ----------------------------------------
-    // RF17 – Actualizar estado del reporte
-    // ----------------------------------------
-    @PatchMapping("/{id}/estado")
-    public ResponseEntity<?> actualizarEstado(
-            @PathVariable Long id,
-            @RequestParam String nuevoEstado,
-            @RequestParam(required = false) String nota
-    ) {
-        return ResponseEntity.ok(reporteService.actualizarEstado(id, nuevoEstado, nota));
     }
 }
