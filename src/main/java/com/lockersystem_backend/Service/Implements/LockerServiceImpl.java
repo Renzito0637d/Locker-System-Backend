@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.beans.factory.annotation.Autowired; // Agregamos Autowired si se usará en otros archivos
 
 import com.lockersystem_backend.Entity.Locker;
 import com.lockersystem_backend.Entity.Ubicacion;
@@ -22,33 +23,44 @@ public class LockerServiceImpl implements LockerService {
     private final LockerRepository lockerRepository;
     private final UbicacionRepository ubicacionRepository;
 
+    // Inyección por constructor (preferido por Spring)
     public LockerServiceImpl(LockerRepository lockerRepository, UbicacionRepository ubicacionRepository) {
         this.lockerRepository = lockerRepository;
         this.ubicacionRepository = ubicacionRepository;
     }
-    private void validarEstado(String estado) {
 
-    if (estado == null) return; // para actualizaciones parciales
-
-    if (!estado.equalsIgnoreCase("disponible") &&
-        !estado.equalsIgnoreCase("ocupado") &&
-        !estado.equalsIgnoreCase("en mantenimiento")) {
-
-        throw new ResponseStatusException(
-            HttpStatus.BAD_REQUEST,
-            "Estado inválido. Solo se permite: disponible, ocupado o en mantenimiento"
-        );
+    // ----------------------------------------------------
+    // 💡 MÉTODO FALTANTE PARA RF15 (BUSCAR POR CÓDIGO)
+    // ----------------------------------------------------
+    @Override
+    public Optional<Locker> findByNumeroLocker(String numeroLocker) {
+        // Asume que el método findByNumeroLocker está definido en LockerRepository.
+        return lockerRepository.findByNumeroLocker(numeroLocker);
     }
-}
+    // ----------------------------------------------------
+    
+    private void validarEstado(String estado) {
+        if (estado == null) return; 
+
+        if (!estado.equalsIgnoreCase("disponible") &&
+            !estado.equalsIgnoreCase("ocupado") &&
+            !estado.equalsIgnoreCase("mantenimiento")) {
+
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Estado inválido. Solo se permite: disponible, ocupado o en mantenimiento"
+            );
+        }
+    }
 
 
     @Override
- public List<LockerResponse> findAll() {
-    return lockerRepository.findAll()
-            .stream()
-            .map(LockerResponse::fromEntity)
-            .toList();
-}
+    public List<LockerResponse> findAll() {
+        return lockerRepository.findAll()
+                .stream()
+                .map(LockerResponse::fromEntity)
+                .toList();
+    }
 
     @Override
     public Optional<Locker> findById(Long id) {
@@ -62,7 +74,7 @@ public class LockerServiceImpl implements LockerService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El número del locker es obligatorio");
         }
 
-        // 🔹 Validación: no repetir número de locker
+        // 🔹 Validación: no repetir número de locker (debes asegurarte que existsByNumeroLocker esté en el Repository)
         if (lockerRepository.existsByNumeroLocker(dto.getNumeroLocker())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "El número de locker ya existe");
         }

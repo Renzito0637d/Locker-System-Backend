@@ -13,4 +13,5 @@ public interface LockerService {
     Locker create(CreateLockerRequest dto);
     Optional<Locker> update(Long id, UpdateLockerRequest dto);
     void deleteById(Long id);
+    Optional<Locker> findByNumeroLocker(String numeroLocker);
 }

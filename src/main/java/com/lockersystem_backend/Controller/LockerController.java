@@ -52,4 +52,10 @@ public ResponseEntity<LockerResponse> update(@PathVariable Long id, @RequestBody
         lockerService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/bycode/{code}")
+public ResponseEntity<Locker> getLockerByCode(@PathVariable String code) {
+    Optional<Locker> l = lockerService.findByNumeroLocker(code);
+    
+    return l.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+}
 }
