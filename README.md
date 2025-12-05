@@ -9,7 +9,16 @@
 ---
 Este repositorio contiene el código fuente del backend para la aplicación web de gestión de lockers, diseñada específicamente para la UTP Sede Norte. El sistema tiene como objetivo permitir a los estudiantes y administradores asignar, liberar y monitorear lockers de manera segura, ordenada y eficiente.
 
+---
+
 El frontend de esta aplicación se encuentra en un repositorio separado: [Link al repositorio del Frontend](https://github.com/Renzito0637d/Locker-System-Frontend)
+
+
+## Proyecto desplegado en render:
+- **Frontend**: https://locker-system-frontend.onrender.com 
+- **Backend**: https://locker-system-backendv2.onrender.com 
+
+
 
 ## ✨ Características principales
 - Gestión de Usuarios: Roles definidos para administradores y estudiantes.
