@@ -17,6 +17,7 @@ import com.lockersystem_backend.Repository.LockerRepository;
 import com.lockersystem_backend.Service.Interfaces.ReporteService;
 import com.lockersystem_backend.Model.ReporteDTOs.CreateReporteRequest;
 import com.lockersystem_backend.Model.ReporteDTOs.UpdateReporteRequest;
+
 @Service
 public class ReporteServiceImpl implements ReporteService {
 
@@ -80,6 +81,24 @@ public class ReporteServiceImpl implements ReporteService {
             // Actualizar estado (Ej: Pasar de PENDIENTE a RESUELTO)
             if (dto.getEstado() != null) {
                 r.setEstado(dto.getEstado());
+
+                // Verificamos si el estado es EN_PROCESO
+                // Asumiendo que en tu Enum EstadoReporte existe el valor EN_PROCESO
+                if (dto.getEstado() == EstadoReporte.EN_PROCESO) {
+                    Locker locker = r.getLocker();
+                    // Actualizamos el estado del locker
+                    locker.setEstado("MANTENIMIENTO");
+                    // IMPORTANTE: Guardamos el locker explícitamente
+                    lockerRepository.save(locker);
+                }
+
+                // Opcional: Si el reporte se marca como RESUELTO, ¿el locker debería volver a
+                // DISPONIBLE?
+                if (dto.getEstado() == EstadoReporte.RESUELTO) {
+                    Locker locker = r.getLocker();
+                    locker.setEstado("DISPONIBLE");
+                    lockerRepository.save(locker);
+                }
             }
 
             return reporteRepository.save(r);
