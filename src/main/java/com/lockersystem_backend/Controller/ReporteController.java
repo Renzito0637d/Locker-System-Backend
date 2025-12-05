@@ -14,7 +14,7 @@ import com.lockersystem_backend.Model.ReporteDTOs.ReporteResponse;
 import com.lockersystem_backend.Service.Interfaces.ReporteService;
 
 @RestController
-@RequestMapping("/api/reportes")
+@RequestMapping("/reportes")
 public class ReporteController {
 
     @Autowired

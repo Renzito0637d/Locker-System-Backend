@@ -136,7 +136,7 @@ public ResponseEntity<AuthResponse> login(@RequestBody AuthenticationRequest req
 
         // Solo permitir si sigue siendo CLIENTE
         boolean isCliente = user.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_CLIENTE".equals(a.getAuthority()));
+                .anyMatch(a -> "ROLE_ESTUDIANTE".equals(a.getAuthority()));
         if (!isCliente)
             return ResponseEntity.status(403).body(Map.of("message", "forbidden"));
 

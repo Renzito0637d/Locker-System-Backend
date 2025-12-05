@@ -1,28 +1,43 @@
 package com.lockersystem_backend.Model.ReporteDTOs;
 
-import java.time.LocalDateTime;
+import com.lockersystem_backend.Entity.Enum.EstadoReporte;
 
 public class UpdateReporteRequest {
     private String descripcion;
-    private LocalDateTime fechaReporte;
     private String tipoReporte;
-    private Long userId;
-    private Long lockerId;
+    private String accionesTomadas; // Lo que llena el Admin
+    private EstadoReporte estado; // Nuevo campo importante
 
-    public UpdateReporteRequest() {}
+    // Getters y Setters
+    public String getDescripcion() {
+        return descripcion;
+    }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 
-    public LocalDateTime getFechaReporte() { return fechaReporte; }
-    public void setFechaReporte(LocalDateTime fechaReporte) { this.fechaReporte = fechaReporte; }
+    public String getTipoReporte() {
+        return tipoReporte;
+    }
 
-    public String getTipoReporte() { return tipoReporte; }
-    public void setTipoReporte(String tipoReporte) { this.tipoReporte = tipoReporte; }
+    public void setTipoReporte(String tipoReporte) {
+        this.tipoReporte = tipoReporte;
+    }
 
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public String getAccionesTomadas() {
+        return accionesTomadas;
+    }
 
-    public Long getLockerId() { return lockerId; }
-    public void setLockerId(Long lockerId) { this.lockerId=lockerId;}
+    public void setAccionesTomadas(String accionesTomadas) {
+        this.accionesTomadas = accionesTomadas;
+    }
+
+    public EstadoReporte getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoReporte estado) {
+        this.estado = estado;
+    }
 }
