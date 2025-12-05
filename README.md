@@ -18,6 +18,7 @@ El frontend de esta aplicación se encuentra en un repositorio separado: [Link a
 - **Frontend**: https://locker-system-frontend.onrender.com 
 - **Backend**: https://locker-system-backendv2.onrender.com 
 
+Esperar a que los servidores enciendan por completo.
 
 
 ## ✨ Características principales
